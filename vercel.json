@@ -2,14 +2,9 @@
     "version": 2,
     "builds": [
         {
-            "src": "./geocode.js",
+            "src": "./src/index.html",
             "use": "@vercel/node"
         }
-    ],
-    "routes": [
-        {
-            "src":"/(.*)",
-            "dest": "/index.html"
-        }
     ]
+
 }
