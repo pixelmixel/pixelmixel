@@ -1,5 +1,19 @@
+const express = require('express');
+const bodyParser = require('body-parser');
 const turf = require('@turf/turf');
 const fs = require('fs');
+const NodeGeocoder = require('node-geocoder');
+
+const app = express();
+const port = 3000;
+
+app.use(bodyParser.json());
+
+// Geocoder configuration for OpenStreetMap
+const geocoderOptions = {
+  provider: 'openstreetmap'
+};
+const geocoder = NodeGeocoder(geocoderOptions);
 
 // Function to parse the city name from the description
 function parseCityName(description) {
@@ -28,11 +42,28 @@ function checkIntersection(coords) {
   return { title: 'No neighbourhood found', city: 'N/A' };
 }
 
-// Example usage
-function main() {
-  const coords = [-77.653814, 44.021671]; // Replace with your default coordinates
-  const result = checkIntersection(coords);
-  console.log(`${result.title},${result.city}`);
-}
+// POST endpoint to receive address from Webflow webhook and return intersection result
+app.post('/geocode', async (req, res) => {
+  // Assuming the address is sent in a field named 'address'
+  const address = req.body.address;
+  if (!address) {
+    return res.status(400).send('Address is required');
+  }
 
-main();
+  try {
+    const geoRes = await geocoder.geocode(address);
+    if (geoRes.length === 0) {
+      return res.status(404).send('Address not found');
+    }
+    const coords = [geoRes[0].longitude, geoRes[0].latitude];
+    const result = checkIntersection(coords);
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error in geocoding process');
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
