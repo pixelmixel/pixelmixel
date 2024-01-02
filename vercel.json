@@ -1,0 +1,15 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "./geocode.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src":"/(.*)",
+            "dest": "/"
+        }
+    ]
+}
