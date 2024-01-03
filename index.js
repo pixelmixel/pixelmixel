@@ -6,7 +6,7 @@ const turf = require('@turf/turf');
 const fs = require('fs');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Replace with your actual Mapbox access token
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoibmFiZXJob29kIiwiYSI6ImM2NmMyNTA1MGNhZTQ4YzhkYTliYjI3ZGVlNTBlMjkyIn0.3oOdaanFkpIZq8LL4WG5wg';
@@ -50,12 +50,10 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
   }
 
   try {
-    // Geocode address using Mapbox
     const geocodeUrl = `${MAPBOX_BASE_URL}/${encodeURIComponent(address)}.json?access_token=${MAPBOX_ACCESS_TOKEN}`;
     const geocodeResponse = await axios.get(geocodeUrl);
     const coords = geocodeResponse.data.features[0].center;
 
-    // Check intersection
     const result = checkIntersection(coords);
     res.json(result);
   } catch (error) {
