@@ -19,18 +19,31 @@ const WEBFLOW_COLLECTION_ID = '5909710656dfadeef5ba698';
 app.use(cors());
 app.use(bodyParser.json());
 
-// ... (Your existing functions like parseCityName and checkIntersection)
+// Function to check if coordinates intersect with any polygon
+function checkIntersection(coords) {
+  const geojsonData = JSON.parse(fs.readFileSync('map.geojson', 'utf8'));
+  const point = turf.point(coords);
+
+  for (const feature of geojsonData.features) {
+    if (turf.booleanPointInPolygon(point, feature)) {
+      const title = feature.properties.title; // Using 'title' as the property
+      return { title };
+    }
+  }
+
+  return { title: 'No neighbourhood found' };
+}
 
 // New function to fetch data from Webflow CMS
-async function fetchFromWebflowCMS(neighborhoodName) {
+async function fetchFromWebflowCMS(neighborhoodTitle) {
   const webflowAPIUrl = `https://api.webflow.com/collections/${WEBFLOW_COLLECTION_ID}/items`;
   const config = {
     headers: { 'Authorization': `Bearer ${WEBFLOW_API_TOKEN}` },
     params: {
       'fields': 'name,slug', // Add other fields you need
       'filter': {
-        'field': 'neighborhood', // The field in your collection that matches the neighborhood name
-        'value': neighborhoodName
+        'field': 'neighborhood', // The field in your collection that matches the neighborhood title
+        'value': neighborhoodTitle
       }
     }
   };
