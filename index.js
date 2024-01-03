@@ -46,25 +46,19 @@ function checkIntersection(coords) {
   return { title: 'No neighbourhood found', city: 'N/A' };
 }
 
-// New function to fetch data from Webflow CMS with hardcoded neighborhood value
+// New function to fetch data from Webflow CMS with client-side filtering
 async function fetchFromWebflowCMS(neighborhoodTitle) {
-  const hardcodedNeighborhood = "Falgarwood"; // Hardcoded for testing
   const webflowAPIUrl = `https://api.webflow.com/collections/${WEBFLOW_COLLECTION_ID}/items`;
   const config = {
-    headers: { 'Authorization': `Bearer ${WEBFLOW_API_TOKEN}` },
-    params: {
-      'fields': 'name,slug,neighborhood',
-      'filter': {
-        'field': 'neighborhood',
-        'value': hardcodedNeighborhood
-      }
-    }
+    headers: { 'Authorization': `Bearer ${WEBFLOW_API_TOKEN}` }
   };
 
   try {
     const response = await axios.get(webflowAPIUrl, config);
-    console.log("Webflow CMS Data:", response.data.items); // Log Webflow CMS data
-    return response.data.items;
+    const allItems = response.data.items;
+    const filteredItems = allItems.filter(item => item.neighborhood === neighborhoodTitle);
+    console.log("Filtered Webflow CMS Data:", filteredItems); // Log filtered Webflow CMS data
+    return filteredItems;
   } catch (error) {
     console.error('Error message:', error.message);
     console.error('Error stack:', error.stack);
