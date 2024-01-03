@@ -46,16 +46,17 @@ function checkIntersection(coords) {
   return { title: 'No neighbourhood found', city: 'N/A' };
 }
 
-// New function to fetch data from Webflow CMS
+// New function to fetch data from Webflow CMS with hardcoded neighborhood value
 async function fetchFromWebflowCMS(neighborhoodTitle) {
+  const hardcodedNeighborhood = "Falgarwood"; // Hardcoded for testing
   const webflowAPIUrl = `https://api.webflow.com/collections/${WEBFLOW_COLLECTION_ID}/items`;
   const config = {
     headers: { 'Authorization': `Bearer ${WEBFLOW_API_TOKEN}` },
     params: {
-      'fields': 'name,slug,neighborhood', // Add other fields you need
+      'fields': 'name,slug,neighborhood',
       'filter': {
-        'field': 'neighborhood', // The field in your collection that matches the neighborhood title
-        'value': neighborhoodTitle
+        'field': 'neighborhood',
+        'value': hardcodedNeighborhood
       }
     }
   };
