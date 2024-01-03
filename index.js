@@ -19,6 +19,17 @@ const WEBFLOW_COLLECTION_ID = '5909710656dfadeef5ba698';
 app.use(cors());
 app.use(bodyParser.json());
 
+// Function to parse the city name from the description
+function parseCityName(description) {
+  const lines = description.split('\n');
+  for (const line of lines) {
+    if (line.startsWith('city:')) {
+      return line.split(':')[1].trim();
+    }
+  }
+  return 'Unknown City'; // Or return null if you prefer
+}
+
 // Function to check if coordinates intersect with any polygon
 function checkIntersection(coords) {
   const geojsonData = JSON.parse(fs.readFileSync('map.geojson', 'utf8'));
@@ -27,11 +38,12 @@ function checkIntersection(coords) {
   for (const feature of geojsonData.features) {
     if (turf.booleanPointInPolygon(point, feature)) {
       const title = feature.properties.title; // Using 'title' as the property
-      return { title };
+      const city = parseCityName(feature.properties.description);
+      return { title, city };
     }
   }
 
-  return { title: 'No neighbourhood found' };
+  return { title: 'No neighbourhood found', city: 'N/A' };
 }
 
 // New function to fetch data from Webflow CMS
@@ -50,6 +62,7 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
 
   try {
     const response = await axios.get(webflowAPIUrl, config);
+    console.log("Webflow CMS Data:", response.data.items); // Log Webflow CMS data
     return response.data.items;
   } catch (error) {
     console.error('Error message:', error.message);
