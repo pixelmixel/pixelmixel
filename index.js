@@ -12,6 +12,10 @@ const port = process.env.PORT || 3000;
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoibmFiZXJob29kIiwiYSI6ImM2NmMyNTA1MGNhZTQ4YzhkYTliYjI3ZGVlNTBlMjkyIn0.3oOdaanFkpIZq8LL4WG5wg';
 const MAPBOX_BASE_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
 
+// Webflow API details
+const WEBFLOW_API_TOKEN = '731a6692434580d474e2dc2100c188e105b55604f5b058ea31d8a6bee7600b52';
+const WEBFLOW_COLLECTION_ID = '65909710656dfadeef5ba698';
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -42,6 +46,29 @@ function checkIntersection(coords) {
   return { title: 'No neighbourhood found', city: 'N/A' };
 }
 
+// New function to fetch data from Webflow CMS
+async function fetchFromWebflowCMS(neighborhoodName) {
+  const webflowAPIUrl = `https://api.webflow.com/collections/${WEBFLOW_COLLECTION_ID}/items`;
+  const config = {
+    headers: { 'Authorization': `Bearer ${WEBFLOW_API_TOKEN}` },
+    params: {
+      'fields': 'name,slug', // Add other fields you need
+      'filter': {
+        'field': 'neighborhood', // The field in your collection that matches the neighborhood name
+        'value': neighborhoodName
+      }
+    }
+  };
+
+  try {
+    const response = await axios.get(webflowAPIUrl, config);
+    return response.data.items;
+  } catch (error) {
+    console.error('Error fetching data from Webflow CMS:', error);
+    throw error;
+  }
+}
+
 // Endpoint to geocode address and check intersection
 app.post('/geocodeAndCheckIntersection', async (req, res) => {
   const address = req.body.address;
@@ -54,8 +81,13 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
     const geocodeResponse = await axios.get(geocodeUrl);
     const coords = geocodeResponse.data.features[0].center;
 
-    const result = checkIntersection(coords);
-    res.json(result);
+    const intersectionResult = checkIntersection(coords);
+    if (intersectionResult.title !== 'No neighbourhood found') {
+      const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
+      intersectionResult.webflowData = webflowData;
+    }
+
+    res.json(intersectionResult);
   } catch (error) {
     console.error(error);
     res.status(500).send('Error processing request');
