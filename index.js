@@ -13,8 +13,8 @@ const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoibmFiZXJob29kIiwiYSI6ImM2NmMyNTA1MGNhZTQ4
 const MAPBOX_BASE_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
 
 // Webflow API details
-const WEBFLOW_API_TOKEN = '731a6692434580d474e2dc2100c188e105b55604f5b058ea31d8a6bee7600b52';
-const WEBFLOW_COLLECTION_ID = '5909710656dfadeef5ba698';
+const WEBFLOW_API_TOKEN = '412a043e812df2319b09f1572d6c6784e02ec25a32ceda933b5aa46cddca8481';
+const WEBFLOW_COLLECTION_ID = '648fa3e80460401ca2b9f2c8';
 
 app.use(cors());
 app.use(bodyParser.json());
