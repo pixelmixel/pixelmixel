@@ -14,7 +14,7 @@ const MAPBOX_BASE_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
 
 // Webflow API details
 const WEBFLOW_API_TOKEN = '731a6692434580d474e2dc2100c188e105b55604f5b058ea31d8a6bee7600b52';
-const WEBFLOW_COLLECTION_ID = '65909710656dfadeef5ba698';
+const WEBFLOW_COLLECTION_ID = '5909710656dfadeef5ba698';
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -79,17 +79,23 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
   try {
     const geocodeUrl = `${MAPBOX_BASE_URL}/${encodeURIComponent(address)}.json?access_token=${MAPBOX_ACCESS_TOKEN}`;
     const geocodeResponse = await axios.get(geocodeUrl);
-    const coords = geocodeResponse.data.features[0].center;
+    console.log("Mapbox API Response:", geocodeResponse.data); // Log Mapbox response
 
+    const coords = geocodeResponse.data.features[0].center;
     const intersectionResult = checkIntersection(coords);
+
     if (intersectionResult.title !== 'No neighbourhood found') {
       const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
+      console.log("Webflow API Response:", webflowData); // Log Webflow response
       intersectionResult.webflowData = webflowData;
     }
 
     res.json(intersectionResult);
   } catch (error) {
-    console.error(error);
+    console.error('Error in /geocodeAndCheckIntersection:', error);
+    if (error.response) {
+      console.error('Error response data:', error.response.data);
+    }
     res.status(500).send('Error processing request');
   }
 });
