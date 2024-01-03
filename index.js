@@ -52,7 +52,7 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
   const config = {
     headers: { 'Authorization': `Bearer ${WEBFLOW_API_TOKEN}` },
     params: {
-      'fields': 'name,slug', // Add other fields you need
+      'fields': 'name,slug,neighborhood', // Add other fields you need
       'filter': {
         'field': 'neighborhood', // The field in your collection that matches the neighborhood title
         'value': neighborhoodTitle
