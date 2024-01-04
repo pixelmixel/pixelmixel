@@ -11,11 +11,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Replace with your actual Mapbox access token
-const MAPBOX_ACCESS_TOKEN = 'process.env.MAPBOX_ACCESS_TOKEN';
+const MAPBOX_ACCESS_TOKEN = process.env.MAPBOX_ACCESS_TOKEN;
 const MAPBOX_BASE_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
 
 // Webflow API details
-const WEBFLOW_API_TOKEN = 'process.env.WEBFLOW_API_TOKEN';
+const WEBFLOW_API_TOKEN = process.env.WEBFLOW_API_TOKEN;
 const WEBFLOW_COLLECTION_ID = '648fa3e80460401ca2b9f2c8';
 
 app.use(cors());
@@ -105,8 +105,6 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
-  console.log("MAPBOX_ACCESS_TOKEN:", process.env.MAPBOX_ACCESS_TOKEN);
-  console.log("WEBFLOW_API_TOKEN:", process.env.WEBFLOW_API_TOKEN);
 });
 
 
