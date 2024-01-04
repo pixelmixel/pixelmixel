@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
@@ -5,15 +6,16 @@ const bodyParser = require('body-parser');
 const turf = require('@turf/turf');
 const fs = require('fs');
 
+
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Replace with your actual Mapbox access token
-const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoibmFiZXJob29kIiwiYSI6ImM2NmMyNTA1MGNhZTQ4YzhkYTliYjI3ZGVlNTBlMjkyIn0.3oOdaanFkpIZq8LL4WG5wg';
+const MAPBOX_ACCESS_TOKEN = 'process.env.MAPBOX_ACCESS_TOKEN';
 const MAPBOX_BASE_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
 
 // Webflow API details
-const WEBFLOW_API_TOKEN = '34e3a5d620c5a7048397cc6d6c948a070cfabcc09b15922e5ebbc072d993ce7f';
+const WEBFLOW_API_TOKEN = 'process.env.WEBFLOW_API_TOKEN';
 const WEBFLOW_COLLECTION_ID = '648fa3e80460401ca2b9f2c8';
 
 app.use(cors());
