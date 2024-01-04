@@ -105,7 +105,8 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
+  console.log("MAPBOX_ACCESS_TOKEN:", process.env.MAPBOX_ACCESS_TOKEN);
+  console.log("WEBFLOW_API_TOKEN:", process.env.WEBFLOW_API_TOKEN);
 });
 
-console.log("MAPBOX_ACCESS_TOKEN:", process.env.MAPBOX_ACCESS_TOKEN);
-console.log("WEBFLOW_API_TOKEN:", process.env.WEBFLOW_API_TOKEN);
+
