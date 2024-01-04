@@ -16,7 +16,7 @@ const MAPBOX_BASE_URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places';
 
 // Webflow API details
 const WEBFLOW_API_TOKEN = process.env.WEBFLOW_API_TOKEN;
-const WEBFLOW_COLLECTION_ID = '648fa3e80460401ca2b9f2c8';
+const WEBFLOW_COLLECTION_ID = process.env.WEBFLOW_COLLECTION_ID;
 
 app.use(cors());
 app.use(bodyParser.json());
