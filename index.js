@@ -27,8 +27,29 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Utility functions
-function parseCityName(description) {
-  // ... your original logic for parseCityName ...
+function parseLocationDetails(description) {
+  const locationDetails = {
+    city: 'Unknown City',
+    provinceState: 'Unknown Province/State',
+    country: 'Unknown Country'
+  };
+
+  if (!description) return locationDetails;
+
+  const lines = description.split('\n');
+  for (const line of lines) {
+    const lowerCaseLine = line.toLowerCase();
+
+    if (lowerCaseLine.startsWith('city:')) {
+      locationDetails.city = line.split(':')[1].trim();
+    } else if (lowerCaseLine.startsWith('province_state:')) {
+      locationDetails.provinceState = line.split(':')[1].trim();
+    } else if (lowerCaseLine.startsWith('country:')) {
+      locationDetails.country = line.split(':')[1].trim();
+    }
+  }
+
+  return locationDetails;
 }
 
 function checkIntersection(coords) {
@@ -37,16 +58,13 @@ function checkIntersection(coords) {
 
   for (const feature of geojsonData.features) {
     if (turf.booleanPointInPolygon(point, feature)) {
-      // Check if the feature has 'properties' and 'title'
-      if (feature.properties && feature.properties.title) {
-        const title = feature.properties.title;
-        const city = parseCityName(feature.properties.description || '');
-        return { title, city };
-      }
+      const title = feature.properties.title || 'Unknown Neighborhood';
+      const { city, provinceState, country } = parseLocationDetails(feature.properties.description);
+      return { title, city, provinceState, country };
     }
   }
 
-  return { title: 'No neighbourhood found', city: 'N/A' };
+  return { title: 'No neighbourhood found', city: 'Unknown City', provinceState: 'Unknown Province/State', country: 'Unknown Country' };
 }
 
 async function fetchFromWebflowCMS(neighborhoodTitle) {
@@ -54,7 +72,7 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
 }
 
 async function fetchDataFromSupabase(neighborhoodName) {
-  // ... your logic to fetch data from Supabase based on neighborhoodName ...
+  // ... existing fetchDataFromSupabase function ...
 }
 
 // Endpoint to geocode address and check intersection
@@ -69,10 +87,6 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
     const geocodeResponse = await axios.get(geocodeUrl);
     const coords = geocodeResponse.data.features[0].center;
     const intersectionResult = checkIntersection(coords);
-
-    if (intersectionResult.title === 'No neighbourhood found') {
-      return res.json(intersectionResult);
-    }
 
     const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
     const supabaseData = await fetchDataFromSupabase(intersectionResult.title);
