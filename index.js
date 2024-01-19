@@ -80,18 +80,20 @@ async function fetchDataFromSupabase(neighborhoodName, cityName) {
       .from('neighbourhoods')
       .select('id')
       .eq('name', neighborhoodName)
-      .eq('city', cityName)
-      .single();
+      .eq('city', cityName);
 
-    if (neighborhoodError || !neighborhoodData) {
+    if (neighborhoodError || !neighborhoodData || neighborhoodData.length === 0) {
       console.error('Error fetching neighborhood ID from Supabase:', neighborhoodError?.message);
       return null;
     }
 
+    // Handle the case where multiple rows are returned - using the first row as an example
+    const neighborhoodId = neighborhoodData[0].id;
+
     const { data: placesData, error: placesError } = await supabase
       .from('places')
       .select('*')
-      .eq('neighbourhoodID', neighborhoodData.id);
+      .eq('neighbourhoodID', neighborhoodId);
 
     if (placesError) {
       console.error('Error fetching places data from Supabase:', placesError.message);
@@ -105,6 +107,7 @@ async function fetchDataFromSupabase(neighborhoodName, cityName) {
     return null;
   }
 }
+
 
 // Endpoint to geocode address and check intersection
 app.post('/geocodeAndCheckIntersection', async (req, res) => {
