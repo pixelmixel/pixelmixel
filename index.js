@@ -28,22 +28,11 @@ app.use(bodyParser.json());
 
 // Utility functions
 function parseCityName(description) {
-  // ... existing parseCityName function ...
+  // ... your original logic for parseCityName ...
 }
 
 function checkIntersection(coords) {
-  const geojsonData = JSON.parse(fs.readFileSync('map.geojson', 'utf8'));
-  const point = turf.point(coords);
-
-  for (const feature of geojsonData.features) {
-    if (turf.booleanPointInPolygon(point, feature)) {
-      const title = feature.properties.title || 'Unknown Neighborhood';
-      const city = parseCityName(feature.properties.description || '');
-      return { title, city };
-    }
-  }
-
-  return { title: 'No neighbourhood found', city: 'N/A' };
+  // ... your original logic for checkIntersection ...
 }
 
 async function fetchFromWebflowCMS(neighborhoodTitle) {
@@ -51,7 +40,7 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
 }
 
 async function fetchDataFromSupabase(neighborhoodName) {
-  // ... existing fetchDataFromSupabase function ...
+  // ... your logic to fetch data from Supabase based on neighborhoodName ...
 }
 
 // Endpoint to geocode address and check intersection
@@ -67,10 +56,7 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
     const coords = geocodeResponse.data.features[0].center;
     const intersectionResult = checkIntersection(coords);
 
-    if (intersectionResult.title === 'No neighbourhood found') {
-      return res.json(intersectionResult);
-    }
-
+    // Fetch data from Webflow CMS and Supabase
     const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
     const supabaseData = await fetchDataFromSupabase(intersectionResult.title);
 
