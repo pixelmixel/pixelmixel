@@ -36,6 +36,7 @@ function parseLocationDetails(description) {
 
   if (!description) return locationDetails;
 
+  console.log('Description:', description);
   const lines = description.split('\n');
   for (const line of lines) {
     const lowerCaseLine = line.toLowerCase();
@@ -49,6 +50,7 @@ function parseLocationDetails(description) {
     }
   }
 
+  console.log('Parsed Location Details:', locationDetails);
   return locationDetails;
 }
 
@@ -72,7 +74,10 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
 }
 
 async function fetchDataFromSupabase(neighborhoodName) {
-  // ... existing fetchDataFromSupabase function ...
+  console.log('Querying Supabase for neighborhood:', neighborhoodName);
+  // ... existing query logic ...
+  console.log('Supabase Data:', placesData);
+  return placesData;
 }
 
 // Endpoint to geocode address and check intersection
