@@ -68,26 +68,33 @@ function checkIntersection(coords) {
 }
 
 async function fetchFromWebflowCMS(neighborhoodTitle) {
-  // Implement fetching data from Webflow CMS
+  // Placeholder for fetchFromWebflowCMS function implementation
+  // Implement based on your Webflow CMS setup
 }
 
-async function fetchDataFromSupabase(neighborhoodName) {
-  console.log('Querying Supabase for neighborhood:', neighborhoodName);
-
-  // Fetch data only for Toronto (neighbourhoodID "1")
-  if (neighborhoodName !== "Toronto") {
-    console.log('Neighborhood is not Toronto. Skipping Supabase query.');
-    return [];
-  }
+async function fetchDataFromSupabase(neighborhoodName, cityName) {
+  console.log('Querying Supabase for neighborhood:', neighborhoodName, 'in city:', cityName);
 
   try {
-    const { data: placesData, error } = await supabase
+    const { data: neighborhoodData, error: neighborhoodError } = await supabase
+      .from('neighbourhoods')
+      .select('id')
+      .eq('name', neighborhoodName)
+      .eq('city', cityName)
+      .single();
+
+    if (neighborhoodError || !neighborhoodData) {
+      console.error('Error fetching neighborhood ID from Supabase:', neighborhoodError?.message);
+      return null;
+    }
+
+    const { data: placesData, error: placesError } = await supabase
       .from('places')
       .select('*')
-      .eq('neighbourhoodID', '1');
+      .eq('neighbourhoodID', neighborhoodData.id);
 
-    if (error) {
-      console.error('Error fetching data from Supabase:', error.message);
+    if (placesError) {
+      console.error('Error fetching places data from Supabase:', placesError.message);
       return null;
     }
 
@@ -113,7 +120,7 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
     const intersectionResult = checkIntersection(coords);
 
     const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
-    const supabaseData = await fetchDataFromSupabase(intersectionResult.city);
+    const supabaseData = await fetchDataFromSupabase(intersectionResult.title, intersectionResult.city);
 
     intersectionResult.webflowData = webflowData;
     intersectionResult.supabaseData = supabaseData;
