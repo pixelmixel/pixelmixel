@@ -32,7 +32,18 @@ function parseCityName(description) {
 }
 
 function checkIntersection(coords) {
-  // ... existing checkIntersection function ...
+  const geojsonData = JSON.parse(fs.readFileSync('map.geojson', 'utf8'));
+  const point = turf.point(coords);
+
+  for (const feature of geojsonData.features) {
+    if (turf.booleanPointInPolygon(point, feature)) {
+      const title = feature.properties.title || 'Unknown Neighborhood';
+      const city = parseCityName(feature.properties.description || '');
+      return { title, city };
+    }
+  }
+
+  return { title: 'No neighbourhood found', city: 'N/A' };
 }
 
 async function fetchFromWebflowCMS(neighborhoodTitle) {
@@ -40,29 +51,7 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
 }
 
 async function fetchDataFromSupabase(neighborhoodName) {
-  try {
-    // Fetch the neighbourhood ID
-    const { data: neighborhoodData, error: neighborhoodError } = await supabase
-      .from('neighbourhoods')
-      .select('id')
-      .eq('name', neighborhoodName)
-      .single();
-
-    if (neighborhoodError) throw neighborhoodError;
-
-    // Fetch places data using the neighbourhood ID
-    const { data: placesData, error: placesError } = await supabase
-      .from('places')
-      .select('*')
-      .eq('neighbourhoodID', neighborhoodData.id); // Match the neighbourhoodID column
-
-    if (placesError) throw placesError;
-
-    return placesData;
-  } catch (error) {
-    console.error('Error fetching data from Supabase:', error.message);
-    return null;
-  }
+  // ... existing fetchDataFromSupabase function ...
 }
 
 // Endpoint to geocode address and check intersection
@@ -78,13 +67,15 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
     const coords = geocodeResponse.data.features[0].center;
     const intersectionResult = checkIntersection(coords);
 
-    if (intersectionResult.title !== 'No neighbourhood found') {
-      const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
-      const supabaseData = await fetchDataFromSupabase(intersectionResult.title);
-
-      intersectionResult.webflowData = webflowData;
-      intersectionResult.supabaseData = supabaseData;
+    if (intersectionResult.title === 'No neighbourhood found') {
+      return res.json(intersectionResult);
     }
+
+    const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
+    const supabaseData = await fetchDataFromSupabase(intersectionResult.title);
+
+    intersectionResult.webflowData = webflowData;
+    intersectionResult.supabaseData = supabaseData;
 
     res.json(intersectionResult);
   } catch (error) {
