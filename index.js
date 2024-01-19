@@ -72,49 +72,49 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
   // Implement based on your Webflow CMS setup
 }
 
-async function fetchDataFromSupabase(neighborhoodName, cityName) {
-  console.log('Querying Supabase for neighborhood:', neighborhoodName, 'in city:', cityName);
+async function fetchDataFromSupabase(neighbourhoodName, cityName) {
+  console.log('Querying Supabase for neighbourhood:', neighbourhoodName, 'in city:', cityName);
 
   try {
-    // Fetch the neighborhood IDs based on the neighborhood name and city name
-    const { data: neighborhoodData, error: neighborhoodError } = await supabase
+    // Fetch the neighbourhood records based on the neighbourhood name and city name
+    const { data: neighbourhoods, error: neighbourhoodError } = await supabase
       .from('neighbourhoods')
       .select('id')
-      .eq('name', neighborhoodName)
+      .eq('name', neighbourhoodName)
       .eq('city', cityName);
 
-    if (neighborhoodError) {
-      console.error('Error fetching neighborhood ID from Supabase:', neighborhoodError.message);
+    if (neighbourhoodError) {
+      console.error('Error fetching neighbourhood data from Supabase:', neighbourhoodError.message);
       return null;
     }
 
-    if (!neighborhoodData || neighborhoodData.length === 0) {
-      console.error('No matching neighborhood found in Supabase for:', neighborhoodName, cityName);
+    if (!neighbourhoods || neighbourhoods.length === 0) {
+      console.error('No matching neighbourhood found in Supabase for:', neighbourhoodName, cityName);
       return null;
     }
 
-    // Use the first matching neighborhood ID
-    const neighborhoodId = neighborhoodData[0].id;
+    // Use the first matching neighbourhood ID
+    const neighbourhoodId = neighbourhoods[0].id;
+    console.log('Neighbourhood ID:', neighbourhoodId);
 
-    // Fetch places data using the neighborhood ID
-    const { data: placesData, error: placesError } = await supabase
+    // Fetch places data using the neighbourhood ID
+    const { data: places, error: placesError } = await supabase
       .from('places')
       .select('*')
-      .eq('neighbourhoodID', neighborhoodId);
+      .eq('neighbourhoodID', neighbourhoodId);
 
     if (placesError) {
       console.error('Error fetching places data from Supabase:', placesError.message);
       return null;
     }
 
-    console.log('Supabase Data:', placesData);
-    return placesData;
+    console.log('Supabase Data:', places);
+    return places;
   } catch (error) {
     console.error('Error in fetchDataFromSupabase:', error.message);
     return null;
   }
 }
-
 
 
 
