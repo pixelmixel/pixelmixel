@@ -68,25 +68,35 @@ function checkIntersection(coords) {
 }
 
 async function fetchFromWebflowCMS(neighborhoodTitle) {
-  try {
-    const webflowAPIUrl = `https://api.webflow.com/collections/${WEBFLOW_COLLECTION_ID}/items`;
-    const config = {
-      headers: { 'Authorization': `Bearer ${WEBFLOW_API_TOKEN}` }
-    };
-
-    const response = await axios.get(webflowAPIUrl, config);
-    const allItems = response.data.items;
-    const filteredItems = allItems.filter(item => item.neighborhood === neighborhoodTitle);
-
-    return filteredItems;
-  } catch (error) {
-    console.error('Error fetching data from Webflow CMS:', error.message);
-    return null;
-  }
+  // Implement fetching data from Webflow CMS
 }
 
 async function fetchDataFromSupabase(neighborhoodName) {
-  // Placeholder for fetchDataFromSupabase function (implement as per your Supabase setup)
+  console.log('Querying Supabase for neighborhood:', neighborhoodName);
+
+  // Fetch data only for Toronto (neighbourhoodID "1")
+  if (neighborhoodName !== "Toronto") {
+    console.log('Neighborhood is not Toronto. Skipping Supabase query.');
+    return [];
+  }
+
+  try {
+    const { data: placesData, error } = await supabase
+      .from('places')
+      .select('*')
+      .eq('neighbourhoodID', '1');
+
+    if (error) {
+      console.error('Error fetching data from Supabase:', error.message);
+      return null;
+    }
+
+    console.log('Supabase Data:', placesData);
+    return placesData;
+  } catch (error) {
+    console.error('Error in fetchDataFromSupabase:', error.message);
+    return null;
+  }
 }
 
 // Endpoint to geocode address and check intersection
@@ -103,10 +113,10 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
     const intersectionResult = checkIntersection(coords);
 
     const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
-    // Implement fetching data from Supabase as needed
+    const supabaseData = await fetchDataFromSupabase(intersectionResult.city);
 
     intersectionResult.webflowData = webflowData;
-    // Add Supabase data to intersectionResult as needed
+    intersectionResult.supabaseData = supabaseData;
 
     res.json(intersectionResult);
   } catch (error) {
