@@ -76,42 +76,41 @@ async function fetchDataFromSupabase(neighborhoodName, cityName) {
   console.log('Querying Supabase for neighborhood:', neighborhoodName, 'in city:', cityName);
 
   try {
+    // Fetch the neighborhood ID based on the neighborhood name and city name
     const { data: neighborhoodData, error: neighborhoodError } = await supabase
       .from('neighbourhoods')
       .select('id')
       .eq('name', neighborhoodName)
-      .eq('city', cityName);
+      .eq('city', cityName)
+      .single(); // Assuming unique name-city pair
 
-    if (neighborhoodError) {
-      console.error('Supabase error:', neighborhoodError);
+    if (neighborhoodError || !neighborhoodData) {
+      console.error('Error fetching neighborhood ID from Supabase:', neighborhoodError?.message);
       return null;
     }
 
-    if (!neighborhoodData || neighborhoodData.length === 0) {
-      console.error('No matching neighborhood found in Supabase for:', neighborhoodName, cityName);
-      return null;
-    }
-
-    const neighborhoodId = neighborhoodData[0].id;
+    const neighborhoodId = neighborhoodData.id;
     console.log('Neighborhood ID:', neighborhoodId);
 
+    // Fetch places data using the neighborhood ID
     const { data: placesData, error: placesError } = await supabase
       .from('places')
       .select('*')
       .eq('neighbourhoodID', neighborhoodId);
 
     if (placesError) {
-      console.error('Error fetching places data from Supabase:', placesError);
+      console.error('Error fetching places data from Supabase:', placesError.message);
       return null;
     }
 
     console.log('Supabase Data:', placesData);
     return placesData;
   } catch (error) {
-    console.error('Error in fetchDataFromSupabase:', error);
+    console.error('Error in fetchDataFromSupabase:', error.message);
     return null;
   }
 }
+
 
 
 
