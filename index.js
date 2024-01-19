@@ -28,7 +28,30 @@ app.use(bodyParser.json());
 
 // Utility functions
 function parseLocationDetails(description) {
-  // ... existing parseLocationDetails function ...
+  const locationDetails = {
+    city: 'Unknown City',
+    provinceState: 'Unknown Province/State',
+    country: 'Unknown Country'
+  };
+
+  if (!description) {
+    return locationDetails;
+  }
+
+  const lines = description.split('\n');
+  for (const line of lines) {
+    const lowerCaseLine = line.toLowerCase();
+
+    if (lowerCaseLine.startsWith('city:')) {
+      locationDetails.city = line.split(':')[1].trim();
+    } else if (lowerCaseLine.startsWith('province_state:')) {
+      locationDetails.provinceState = line.split(':')[1].trim();
+    } else if (lowerCaseLine.startsWith('country:')) {
+      locationDetails.country = line.split(':')[1].trim();
+    }
+  }
+
+  return locationDetails;
 }
 
 function checkIntersection(coords) {
@@ -68,10 +91,6 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
     const geocodeResponse = await axios.get(geocodeUrl);
     const coords = geocodeResponse.data.features[0].center;
     const intersectionResult = checkIntersection(coords);
-
-    if (intersectionResult.title === 'No neighbourhood found') {
-      return res.json(intersectionResult);
-    }
 
     const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
     const supabaseData = await fetchDataFromSupabase(intersectionResult.title);
