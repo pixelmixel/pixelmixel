@@ -54,7 +54,7 @@ async function fetchDataFromSupabase(neighborhoodName) {
     const { data: placesData, error: placesError } = await supabase
       .from('places')
       .select('*')
-      .eq('neighborhood_id', neighborhoodData.id);
+      .eq('neighbourhoodID', neighborhoodData.id); // Match the neighbourhoodID column
 
     if (placesError) throw placesError;
 
