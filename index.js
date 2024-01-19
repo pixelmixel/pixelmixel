@@ -82,13 +82,18 @@ async function fetchDataFromSupabase(neighborhoodName, cityName) {
       .eq('name', neighborhoodName)
       .eq('city', cityName);
 
-    if (neighborhoodError || !neighborhoodData || neighborhoodData.length === 0) {
-      console.error('Error fetching neighborhood ID from Supabase:', neighborhoodError?.message);
+    if (neighborhoodError) {
+      console.error('Supabase error:', neighborhoodError);
       return null;
     }
 
-    // Handle the case where multiple rows are returned - using the first row as an example
+    if (!neighborhoodData || neighborhoodData.length === 0) {
+      console.error('No matching neighborhood found in Supabase for:', neighborhoodName, cityName);
+      return null;
+    }
+
     const neighborhoodId = neighborhoodData[0].id;
+    console.log('Neighborhood ID:', neighborhoodId);
 
     const { data: placesData, error: placesError } = await supabase
       .from('places')
@@ -96,17 +101,18 @@ async function fetchDataFromSupabase(neighborhoodName, cityName) {
       .eq('neighbourhoodID', neighborhoodId);
 
     if (placesError) {
-      console.error('Error fetching places data from Supabase:', placesError.message);
+      console.error('Error fetching places data from Supabase:', placesError);
       return null;
     }
 
     console.log('Supabase Data:', placesData);
     return placesData;
   } catch (error) {
-    console.error('Error in fetchDataFromSupabase:', error.message);
+    console.error('Error in fetchDataFromSupabase:', error);
     return null;
   }
 }
+
 
 
 // Endpoint to geocode address and check intersection
