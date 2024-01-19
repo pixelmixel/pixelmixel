@@ -32,7 +32,20 @@ function parseLocationDetails(description) {
 }
 
 function checkIntersection(coords) {
-  // ... existing checkIntersection function ...
+  const geojsonData = JSON.parse(fs.readFileSync('map.geojson', 'utf8'));
+  const point = turf.point(coords);
+
+  for (const feature of geojsonData.features) {
+    if (turf.booleanPointInPolygon(point, feature)) {
+      if (feature.properties && 'title' in feature.properties) {
+        const title = feature.properties.title;
+        const { city, provinceState, country } = parseLocationDetails(feature.properties.description);
+        return { title, city, provinceState, country };
+      }
+    }
+  }
+
+  return { title: 'No neighbourhood found', city: 'Unknown City', provinceState: 'Unknown Province/State', country: 'Unknown Country' };
 }
 
 async function fetchFromWebflowCMS(neighborhoodTitle) {
@@ -40,24 +53,7 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
 }
 
 async function fetchDataFromSupabase(neighborhoodName) {
-  console.log('Querying Supabase for neighborhood:', neighborhoodName);
-  try {
-    const { data: placesData, error } = await supabase
-      .from('places')
-      .select('*')
-      .eq('neighborhoodName', neighborhoodName); // Ensure the column name is correct
-
-    if (error) {
-      console.error('Error fetching data from Supabase:', error.message);
-      return null;
-    }
-
-    console.log('Supabase Data:', placesData);
-    return placesData;
-  } catch (error) {
-    console.error('Error in fetchDataFromSupabase:', error.message);
-    return null;
-  }
+  // ... existing fetchDataFromSupabase function ...
 }
 
 // Endpoint to geocode address and check intersection
@@ -72,6 +68,10 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
     const geocodeResponse = await axios.get(geocodeUrl);
     const coords = geocodeResponse.data.features[0].center;
     const intersectionResult = checkIntersection(coords);
+
+    if (intersectionResult.title === 'No neighbourhood found') {
+      return res.json(intersectionResult);
+    }
 
     const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
     const supabaseData = await fetchDataFromSupabase(intersectionResult.title);
