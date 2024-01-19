@@ -28,47 +28,11 @@ app.use(bodyParser.json());
 
 // Utility functions
 function parseLocationDetails(description) {
-  const locationDetails = {
-    city: 'Unknown City',
-    provinceState: 'Unknown Province/State',
-    country: 'Unknown Country'
-  };
-
-  if (!description) {
-    return locationDetails;
-  }
-
-  const lines = description.split('\n');
-  for (const line of lines) {
-    const lowerCaseLine = line.toLowerCase();
-
-    if (lowerCaseLine.startsWith('city:')) {
-      locationDetails.city = line.split(':')[1].trim();
-    } else if (lowerCaseLine.startsWith('province_state:')) {
-      locationDetails.provinceState = line.split(':')[1].trim();
-    } else if (lowerCaseLine.startsWith('country:')) {
-      locationDetails.country = line.split(':')[1].trim();
-    }
-  }
-
-  return locationDetails;
+  // ... existing parseLocationDetails function ...
 }
 
 function checkIntersection(coords) {
-  const geojsonData = JSON.parse(fs.readFileSync('map.geojson', 'utf8'));
-  const point = turf.point(coords);
-
-  for (const feature of geojsonData.features) {
-    if (turf.booleanPointInPolygon(point, feature)) {
-      if (feature.properties && 'title' in feature.properties) {
-        const title = feature.properties.title;
-        const { city, provinceState, country } = parseLocationDetails(feature.properties.description);
-        return { title, city, provinceState, country };
-      }
-    }
-  }
-
-  return { title: 'No neighbourhood found', city: 'Unknown City', provinceState: 'Unknown Province/State', country: 'Unknown Country' };
+  // ... existing checkIntersection function ...
 }
 
 async function fetchFromWebflowCMS(neighborhoodTitle) {
@@ -76,7 +40,26 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
 }
 
 async function fetchDataFromSupabase(neighborhoodName) {
-  // ... existing fetchDataFromSupabase function ...
+  console.log('Querying Supabase for neighborhood:', neighborhoodName);
+  const neighbourhoodID = "1"; // Hardcoded for testing with Toronto
+
+  try {
+    const { data: placesData, error } = await supabase
+      .from('places')
+      .select('*')
+      .eq('neighbourhoodID', neighbourhoodID);
+
+    if (error) {
+      console.error('Error fetching data from Supabase:', error.message);
+      return null;
+    }
+
+    console.log('Supabase Data:', placesData);
+    return placesData;
+  } catch (error) {
+    console.error('Error in fetchDataFromSupabase:', error.message);
+    return null;
+  }
 }
 
 // Endpoint to geocode address and check intersection
