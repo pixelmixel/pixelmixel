@@ -28,38 +28,65 @@ app.use(bodyParser.json());
 
 // Utility functions
 function parseLocationDetails(description) {
-  // ... existing parseLocationDetails function ...
+  const locationDetails = {
+    city: 'Unknown City',
+    provinceState: 'Unknown Province/State',
+    country: 'Unknown Country'
+  };
+
+  if (!description) return locationDetails;
+
+  const lines = description.split('\n');
+  for (const line of lines) {
+    const lowerCaseLine = line.toLowerCase();
+
+    if (lowerCaseLine.startsWith('city:')) {
+      locationDetails.city = line.split(':')[1].trim();
+    } else if (lowerCaseLine.startsWith('province_state:')) {
+      locationDetails.provinceState = line.split(':')[1].trim();
+    } else if (lowerCaseLine.startsWith('country:')) {
+      locationDetails.country = line.split(':')[1].trim();
+    }
+  }
+
+  return locationDetails;
 }
 
 function checkIntersection(coords) {
-  // ... existing checkIntersection function ...
+  const geojsonData = JSON.parse(fs.readFileSync('map.geojson', 'utf8'));
+  const point = turf.point(coords);
+
+  for (const feature of geojsonData.features) {
+    if (turf.booleanPointInPolygon(point, feature) && feature.properties) {
+      const title = feature.properties.title || 'Unknown Neighborhood';
+      const { city, provinceState, country } = parseLocationDetails(feature.properties.description || '');
+      return { title, city, provinceState, country };
+    }
+  }
+
+  return { title: 'No neighbourhood found', city: 'Unknown City', provinceState: 'Unknown Province/State', country: 'Unknown Country' };
 }
 
 async function fetchFromWebflowCMS(neighborhoodTitle) {
-  // ... existing fetchFromWebflowCMS function ...
+  try {
+    const webflowAPIUrl = `https://api.webflow.com/collections/${WEBFLOW_COLLECTION_ID}/items`;
+    const config = {
+      headers: { 'Authorization': `Bearer ${WEBFLOW_API_TOKEN}` }
+    };
+
+    const response = await axios.get(webflowAPIUrl, config);
+    const allItems = response.data.items;
+    const filteredItems = allItems.filter(item => item.neighborhood === neighborhoodTitle);
+
+    return filteredItems;
+  } catch (error) {
+    console.error('Error fetching data from Webflow CMS:', error.message);
+    return null;
+  }
 }
 
 async function fetchDataFromSupabase(neighborhoodName) {
-  console.log('Querying Supabase for neighborhood:', neighborhoodName);
-  const neighbourhoodID = "1"; // Hardcoded for testing with Toronto
-
-  try {
-    const { data: placesData, error } = await supabase
-      .from('places')
-      .select('*')
-      .eq('neighbourhoodID', neighbourhoodID);
-
-    if (error) {
-      console.error('Error fetching data from Supabase:', error.message);
-      return null;
-    }
-
-    console.log('Supabase Data:', placesData);
-    return placesData;
-  } catch (error) {
-    console.error('Error in fetchDataFromSupabase:', error.message);
-    return null;
-  }
+  // Placeholder for fetchDataFromSupabase function (implement as per your Supabase setup)
 }
 
 // Endpoint to geocode address and check intersection
@@ -76,10 +103,10 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
     const intersectionResult = checkIntersection(coords);
 
     const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
-    const supabaseData = await fetchDataFromSupabase(intersectionResult.title);
+    // Implement fetching data from Supabase as needed
 
     intersectionResult.webflowData = webflowData;
-    intersectionResult.supabaseData = supabaseData;
+    // Add Supabase data to intersectionResult as needed
 
     res.json(intersectionResult);
   } catch (error) {
