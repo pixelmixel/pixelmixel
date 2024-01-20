@@ -92,6 +92,9 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
     // Handle the response and extract the data you need
     const webflowData = response.data;
 
+    // Log the fetched Webflow data
+    console.log('Webflow Data:', webflowData);
+
     // You can process webflowData here and return it as needed
 
     return webflowData;
