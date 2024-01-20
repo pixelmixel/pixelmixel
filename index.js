@@ -83,8 +83,8 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
       },
       params: {
         limit: 100,
-        offset: 0
-        // Removed 'fields[neighborhoodTitle]' parameter
+        offset: 0,
+        'fields[neighborhoodTitle]': neighborhoodTitle // Added 'fields[neighborhoodTitle]' parameter
       }
     });
 
