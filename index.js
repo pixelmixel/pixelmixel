@@ -64,7 +64,7 @@ function checkIntersection(coords) {
     }
   }
 
-  return { title: 'No neighbourhood found', city: 'Unknown City', provinceState: 'Unknown Province/State', country: 'Unknown Country' };
+  return { title: 'No neighborhood found', city: 'Unknown City', provinceState: 'Unknown Province/State', country: 'Unknown Country' };
 }
 
 async function fetchFromWebflowCMS(neighborhoodTitle) {
@@ -72,36 +72,36 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
   // Implement based on your Webflow CMS setup
 }
 
-async function fetchDataFromSupabase(neighbourhoodName, cityName) {
-  console.log('Querying Supabase for neighbourhood:', neighbourhoodName, 'in city:', cityName);
+async function fetchDataFromSupabase(neighborhoodName, cityName) {
+  console.log('Querying Supabase for neighborhood:', neighborhoodName, 'in city:', cityName);
 
   try {
-    // Fetch the neighbourhood records based on the neighbourhood name and city name
-    const { data: neighbourhoods, error: neighbourhoodError } = await supabase
+    // Fetch the neighborhood records based on the neighborhood name and city name
+    const { data: neighborhoods, error: neighborhoodError } = await supabase
       .from('neighborhoods')
       .select('id')
-      .eq('name', neighbourhoodName)
+      .eq('name', neighborhoodName)
       .eq('city', cityName);
 
-    if (neighbourhoodError) {
-      console.error('Error fetching neighbourhood data from Supabase:', neighbourhoodError.message);
+    if (neighborhoodError) {
+      console.error('Error fetching neighborhood data from Supabase:', neighborhoodError.message);
       return null;
     }
 
-    if (!neighbourhoods || neighbourhoods.length === 0) {
-      console.error('No matching neighbourhood found in Supabase for:', neighbourhoodName, cityName);
+    if (!neighborhoods || neighborhoods.length === 0) {
+      console.error('No matching neighborhood found in Supabase for:', neighborhoodName, cityName);
       return null;
     }
 
-    // Use the first matching neighbourhood ID
-    const neighbourhoodId = neighbourhoods[0].id;
-    console.log('Neighbourhood ID:', neighbourhoodId);
+    // Use the first matching neighborhood ID
+    const neighborhoodId = neighborhoods[0].id;
+    console.log('Neighborhood ID:', neighborhoodId);
 
-    // Fetch places data using the neighbourhood ID
+    // Fetch places data using the neighborhood ID
     const { data: places, error: placesError } = await supabase
       .from('places')
       .select('*')
-      .eq('neighborhood_id', neighbourhoodId); // Updated to use "neighborhood_id"
+      .eq('neighborhood_id', neighborhoodId); // Updated to use "neighborhood_id"
 
     if (placesError) {
       console.error('Error fetching places data from Supabase:', placesError.message);
