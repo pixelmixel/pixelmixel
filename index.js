@@ -68,8 +68,37 @@ function checkIntersection(coords) {
 }
 
 async function fetchFromWebflowCMS(neighborhoodTitle) {
-  // Placeholder for fetchFromWebflowCMS function implementation
-  // Implement based on your Webflow CMS setup
+  // Check if Webflow API token and collection ID are defined in .env
+  if (!process.env.WEBFLOW_API_TOKEN || !process.env.WEBFLOW_COLLECTION_ID) {
+    console.error('Webflow API token and collection ID are not defined in .env');
+    return null;
+  }
+
+  // Define the Webflow API endpoint
+  const webflowEndpoint = `https://api.webflow.com/collections/${process.env.WEBFLOW_COLLECTION_ID}/items`;
+
+  try {
+    // Make a GET request to the Webflow API
+    const response = await axios.get(webflowEndpoint, {
+      headers: {
+        Authorization: `Bearer ${process.env.WEBFLOW_API_TOKEN}`,
+      },
+      params: {
+        // Define your own query parameters based on your Webflow CMS setup
+        filter: `neighborhoodTitle=${neighborhoodTitle}`, // Modify this filter as needed
+      },
+    });
+
+    // Handle the response and extract the data you need
+    const webflowData = response.data;
+
+    // You can process webflowData here and return it as needed
+
+    return webflowData;
+  } catch (error) {
+    console.error('Error fetching data from Webflow CMS:', error);
+    return null;
+  }
 }
 
 async function fetchDataFromSupabase(neighborhoodName, cityName) {
