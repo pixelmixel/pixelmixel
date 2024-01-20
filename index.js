@@ -83,14 +83,15 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
       },
       params: {
         limit: 100,
-        offset: 0,
-        'fields[neighborhoodTitle]': neighborhoodTitle // Added 'fields[neighborhoodTitle]' parameter
+        offset: 0
       }
     });
 
-    const webflowData = response.data;
-    console.log('Webflow Data:', webflowData);
-    return webflowData;
+    const items = response.data.items;
+    const filteredItems = items.filter(item => item.neighborhoodTitle === neighborhoodTitle);
+
+    console.log('Filtered Webflow Data:', filteredItems);
+    return filteredItems;
   } catch (error) {
     console.error('Error fetching data from Webflow CMS:', error);
     return null;
