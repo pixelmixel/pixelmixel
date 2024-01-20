@@ -86,10 +86,12 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
         offset: 0
       }
     });
-
+    
+    console.log('Raw Webflow Data:', response.data.items); // Add this line to log raw data
+    
     const items = response.data.items;
     const filteredItems = items.filter(item => item.neighborhoodTitle === neighborhoodTitle);
-
+    
     console.log('Filtered Webflow Data:', filteredItems);
     return filteredItems;
   } catch (error) {
