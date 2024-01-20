@@ -90,7 +90,7 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
     console.log('Raw Webflow Data:', response.data.items); // Log raw data
 
     const items = response.data.items;
-    const filteredItems = items.filter(item => item.neighborhoodTitle === neighborhoodTitle);
+    const filteredItems = items.filter(item => item.neighborhoodTitle && item.neighborhoodTitle.toLowerCase() === neighborhoodTitle.toLowerCase());
 
     console.log('Filtered Webflow Data:', filteredItems);
     return filteredItems;
