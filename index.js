@@ -89,7 +89,6 @@ async function fetchFromWebflowCMS(neighborhoodTitle) {
 
     console.log('Raw Webflow Data:', response.data.items); // Log raw data
 
-  
     const items = response.data.items;
     const filteredItems = items.filter(item => item.neighborhoodtitle === neighborhoodTitle);
 
@@ -144,6 +143,54 @@ async function fetchDataFromSupabase(neighborhoodName, cityName) {
     return null;
   }
 }
+
+// User Sign-Up Endpoint
+app.post('/signup', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).send('Email and password are required');
+  }
+
+  try {
+    const { user, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    res.status(201).json({ message: 'User created successfully', user });
+  } catch (error) {
+    console.error('Error signing up user:', error.message);
+    res.status(500).send(error.message);
+  }
+});
+
+// User Sign-In Endpoint
+app.post('/signin', async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).send('Email and password are required');
+  }
+
+  try {
+    const { user, error } = await supabase.auth.signIn({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    res.json({ message: 'User signed in successfully', user });
+  } catch (error) {
+    console.error('Error signing in user:', error.message);
+    res.status(500).send(error.message);
+  }
+});
 
 // Endpoint to geocode address and check intersection
 app.post('/geocodeAndCheckIntersection', async (req, res) => {
