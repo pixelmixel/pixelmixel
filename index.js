@@ -205,6 +205,9 @@ app.post('/geocodeAndCheckIntersection', async (req, res) => {
     const coords = geocodeResponse.data.features[0].center;
     const intersectionResult = checkIntersection(coords);
 
+    // Clear previous results
+    intersectionResult.previousResults = []; // You can add a mechanism here to clear previous results
+
     const webflowData = await fetchFromWebflowCMS(intersectionResult.title);
     const supabaseData = await fetchDataFromSupabase(intersectionResult.title, intersectionResult.city);
 
