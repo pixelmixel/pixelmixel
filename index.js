@@ -192,6 +192,39 @@ app.post('/signin', async (req, res) => {
   }
 });
 
+// Endpoint to fetch photo URL by city name from Webflow CMS
+app.get('/getPhotoByCity', async (req, res) => {
+  const cityName = req.query.cityName;
+  if (!cityName) {
+    return res.status(400).send('City name is required');
+  }
+
+  // Assuming 'city' is the field name in the "Locations" collection that stores the city name
+  // and 'photoUrl' is the field name for the photo URL.
+  const webflowEndpoint = `https://api.webflow.com/collections/${WEBFLOW_COLLECTION_ID}/items`;
+  try {
+    const response = await axios.get(webflowEndpoint, {
+      headers: {
+        'Authorization': `Bearer ${WEBFLOW_API_TOKEN}`,
+        'accept-version': '1.0.0'
+      }
+    });
+
+    // Find the item that matches the provided city name
+    const matchingItem = response.data.items.find(item => item.city === cityName);
+    if (matchingItem) {
+      // Assuming 'photoUrl' is the field in the collection item that contains the photo URL
+      const photoUrl = matchingItem.photoUrl;
+      res.json({ photoUrl });
+    } else {
+      res.status(404).send('City not found in Webflow CMS');
+    }
+  } catch (error) {
+    console.error('Error fetching data from Webflow CMS:', error);
+    res.status(500).send('Error fetching photo URL');
+  }
+});
+
 // Endpoint to geocode address and check intersection
 app.post('/geocodeAndCheckIntersection', async (req, res) => {
   const address = req.body.address;
